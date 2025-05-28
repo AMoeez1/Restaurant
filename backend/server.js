@@ -1,0 +1,28 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require('cookie-parser')
+
+const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // if needed for cookies or auth headers
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
+
+// app.use(cors());
+
+
+app.use("/", require("./routes/auth"));
+
+
+mongoose
+  .connect("mongodb://127.0.0.1:27017/Restaurant")
+  .then(() => console.log("Mongoose connected successfully"))
+  .catch((error) => console.log(error));
+
+app.listen(6001, () => console.log("Server Started"));

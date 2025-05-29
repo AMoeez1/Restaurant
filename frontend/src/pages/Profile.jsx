@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import useCheckAuth from "../hooks/useCheckAuth";
 
 function Profile() {
-    const navigate = useNavigate();
   const [data, setData] = useState({});
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -26,20 +28,33 @@ function Profile() {
     fetchProfile();
   }, []);
 
+  const isAuthenticated = useCheckAuth();
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      toast.warning("You cannot have access to this route until login");
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
   const handleLogout = async () => {
-    console.log('button clicked')
+    console.log("button clicked");
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/logout`,
         {
           withCredentials: true,
         }
-    );
-    console.log(res.data)
-    navigate('/login');
+      );
+      console.log(res.data);
+      navigate("/login");
       toast.success(res.data);
     } catch (err) {
-        toast.error(err.res?.data || "Logout failed");
+      toast.error(err.res?.data || "Logout failed");
     }
   };
   //   const user = {
@@ -61,20 +76,23 @@ function Profile() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
         {/* <div>
-          <h3 className="font-semibold text-gray-700">Phone:</h3>
-          <p className="text-gray-600">{user.phone}</p>
-        </div> */}
+            <h3 className="font-semibold text-gray-700">Phone:</h3>
+            <p className="text-gray-600">{user.phone}</p>
+          </div> */}
         {/* <div>
-          <h3 className="font-semibold text-gray-700">Joined:</h3>
-          <p className="text-gray-600">{user.joined}</p>
-        </div> */}
+            <h3 className="font-semibold text-gray-700">Joined:</h3>
+            <p className="text-gray-600">{user.joined}</p>
+          </div> */}
       </div>
 
       <div className="mt-8 flex justify-center gap-4">
         <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded">
           Edit Profile
         </button>
-        <button onClick={handleLogout} className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded">
+        <button
+          onClick={handleLogout}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded"
+        >
           Logout
         </button>
       </div>

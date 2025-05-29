@@ -1,23 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Checkbox, Form, Input, message } from "antd";
 import { toast } from "react-toastify";
+import useCheckAuth from "../hooks/useCheckAuth";
 
 const Register = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const navigate = useNavigate();
+  const isAuthenticated = useCheckAuth();
+
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      toast.warning("You cannot have access to this route until logout");
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
 
   const onFinish = async (values) => {
     try {
-      const res = await axios.post(`${backendUrl}/register`,values);
+      const res = await axios.post(`${backendUrl}/register`, values);
       toast.success(res.data.message || "Registered successfully!");
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
       toast.error(error.response.data.message || "Registration failed.");
     }
-  }; 
+  };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);

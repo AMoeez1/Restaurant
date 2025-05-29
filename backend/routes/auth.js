@@ -92,6 +92,35 @@ router.get("/profile", validateToken, async (req, res) => {
   }
 });
 
+router.put("/profile", validateToken, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!name || !email) {
+      return res
+        .status(409)
+        .send({ message: "Name and email fields are required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, email },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(409).send({ message: "Error Updating User!" });
+    }
+
+    res.json({
+      message: "Profile Updated Successfully",
+      user: updatedUser,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 router.get("/logout", (req, res) => {
   res.cookie("access-token", "", {
     maxAge: 0,
@@ -100,12 +129,11 @@ router.get("/logout", (req, res) => {
     sameSite: "Lax",
   });
 
-  res.send({message: 'Logged Out Successfully'});
+  res.send({ message: "Logged Out Successfully" });
 });
 
-router.get('/check-auth', validateToken ,(req, res) => {
+router.get("/check-auth", validateToken, (req, res) => {
   res.json({ isAuthenticated: true });
-})
-
+});
 
 module.exports = router;

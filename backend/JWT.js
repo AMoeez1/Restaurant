@@ -15,6 +15,8 @@ const createToken = (user) => {
 
 const validateToken = (req, res, next) => {
   const accessToken = req.cookies["access-token"];
+    console.log("Access Token:", accessToken); // Add this line to debug
+
 
   if (!accessToken) {
     return res.status(400).json({ message: "User not authenticated" });
@@ -22,12 +24,15 @@ const validateToken = (req, res, next) => {
 
   try {
     const validToken = verify(accessToken, "jwtsecretplzchange");
+        console.log("Valid Token:", validToken); // Add this line to debug
+
     if (validToken) {
       req.user = validToken;
       req.authenticated = true;
       return next();
     }
   } catch (err) {
+        console.log("Token Verification Error:", err.message); // Log any errors during token verification
     return res.status(400).json({ message: err });
   }
 };

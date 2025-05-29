@@ -2,10 +2,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, message } from "antd";
 import axios from "axios";
 import { toast } from "react-toastify";
+import useCheckAuth from '../hooks/useCheckAuth'
+import { useEffect } from "react";
 
 const Login = () => {
-
   const navigate = useNavigate();
+  const isAuthenticated = useCheckAuth();
+
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      toast.warning('You cannot have access to this route until logout')
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+
   const onFinish = async (values) => {
     try {
       const res = await axios.post(

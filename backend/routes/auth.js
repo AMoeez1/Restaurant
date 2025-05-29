@@ -74,11 +74,38 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/profile", validateToken, (req, res) => {
-  res.json({
-    authenticated: true,
-    message: "User is authenticated",
-    user: req.user
-  });
+router.get("/profile", validateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      authenticated: true,
+      message: "User is authenticated",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
+
+router.get("/logout", (req, res) => {
+  res.cookie("access-token", "", {
+    maxAge: 0,
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  });
+
+  res.send({message: 'Logged Out Successfully'});
+});
+
+router.get('/check-auth', validateToken ,(req, res) => {
+  res.json({ isAuthenticated: true });
+})
+
+
 module.exports = router;

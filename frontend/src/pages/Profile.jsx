@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useCheckAuth from "../hooks/useCheckAuth";
+import { Flex, Skeleton, Space } from "antd";
+import { DotChartOutlined } from '@ant-design/icons';
+
 
 function Profile() {
   const [data, setData] = useState({});
@@ -38,8 +41,20 @@ function Profile() {
   }, [isAuthenticated, navigate]);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
-  }
+  return (
+    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
+      <Skeleton.Avatar active size={88} style={{ margin: '0 auto', marginBottom: 16 }} />
+      <Skeleton active title={false} paragraph={{ rows: 1, width: '60%' }} />
+      <Skeleton.Input active style={{ width: 200, marginBottom: 20 }} />
+
+      <div className="mt-8 flex justify-center gap-4">
+        <Skeleton.Button active style={{ width: 120 }} />
+        <Skeleton.Button active style={{ width: 120 }} />
+      </div>
+    </div>
+  );
+}
+
 
   const handleLogout = async () => {
     console.log("button clicked");

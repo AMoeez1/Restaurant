@@ -22,9 +22,10 @@ function Profile() {
             withCredentials: true,
           }
         );
+        // console.log(res.data.user)
         setData(res.data.user);
       } catch (err) {
-        toast.error(err.response?.data?.message || "Something went wrong");
+        // toast.error(err.response?.data?.message || "Something went wrong");
       }
     };
 
@@ -45,7 +46,7 @@ function Profile() {
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
         <Skeleton.Avatar
           active
-          size={88}
+          size={120}
           style={{ margin: "0 auto", marginBottom: 16 }}
         />
         <Skeleton active title={false} paragraph={{ rows: 1, width: "60%" }} />
@@ -78,21 +79,35 @@ function Profile() {
 
   const user = {
     name: data.name,
-    email: data.email
-  }
+    email: data.email,
+    avatar: data.avatar
+  };
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
-      <img
-        src="https://i.pravatar.cc/150?img=3"
-        alt="User Avatar"
-        className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-yellow-500"
-      />
+      {data?.avatar ? (
+        <img
+          src={`${import.meta.env.VITE_BACKEND_URL}/${data.avatar.replace(
+            /\\/g,
+            "/"
+          )}`}
+          alt="Profile"
+          className="w-32 h-32 rounded-full mx-auto"
+          style={{ objectFit: "cover" }}
+        />
+      ) : (
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+          alt="User Avatar"
+          className="w-32 h-32 rounded-full mx-auto"
+        />
+      )}
+
       <h2 className="text-2xl font-bold text-gray-800 mb-1">{data.name}</h2>
       <p className="text-gray-600 mb-6">{data.email}</p>
 
       <div className="mt-8 flex justify-center gap-4">
-        <EditProfileModal user={user}/>
+        <EditProfileModal user={user} />
         <button
           onClick={handleLogout}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded"

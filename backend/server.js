@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require('cookie-parser')
+const path = require('path');
 
 const app = express();
 
@@ -13,6 +14,10 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+// app.use('/assets', express.static('assets'));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+
 
 // app.use(cors());
 

@@ -30,7 +30,7 @@ const AdminLogin = () => {
         }
       );
       toast.success(res.data.message || "Login successful");
-      navigate("/profile");
+      navigate("/admin/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     }

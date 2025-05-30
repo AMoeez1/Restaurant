@@ -43,17 +43,17 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 shadow rounded">Total Orders: 120</div>
+        <div className="bg-white p-4 shadow rounded">Total Users: {allUsers.length}</div>
         <div className="bg-white p-4 shadow rounded">Reservations: 45</div>
         <div className="bg-white p-4 shadow rounded">Menu Items: 32</div>
       </div>
       <div className="bg-white p-6 shadow rounded h-64">
         Recent Orders (Table Placeholder)
-        {allUsers.length}
-        {allUsers.map((user) => (
+        {/* {allUsers.map((user) => (
           <p key={user._id}>
             {user.name} - {user.email}
           </p>
-        ))}
+        ))} */}
       </div>
     </div>
   );

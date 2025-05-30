@@ -3,7 +3,6 @@ import { Button, Form, Input, Modal } from "antd";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { CameraOutlined } from "@ant-design/icons";
-import ProfileImage from "./ProfileImage";
 
 function EditProfileModal({ user }) {
   const [form] = Form.useForm();
@@ -17,8 +16,6 @@ function EditProfileModal({ user }) {
 
   const showModal = () => {
     setOpen(true);
-    console.log(user);
-
     setIniVals({ name: user.name, email: user.email });
   };
 
@@ -37,7 +34,6 @@ function EditProfileModal({ user }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("Selected file:", file);
       setSelectedFile(file);
     }
   };
@@ -49,7 +45,7 @@ function EditProfileModal({ user }) {
       name !== iniVals.name || email !== iniVals.email || selectedFile !== null;
 
     if (!hasChanged) {
-      toast.info("No changes detected to update.");
+      toast.info("No changes detected to be update.");
       return;
     }
     setConfirmLoading(true);

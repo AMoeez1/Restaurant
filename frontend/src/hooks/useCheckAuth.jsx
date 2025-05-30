@@ -1,5 +1,3 @@
-// useCheckAuth.js (Custom Hook)
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 

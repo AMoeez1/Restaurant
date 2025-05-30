@@ -24,6 +24,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.use("/", require("./routes/auth"));
 app.use("/admin", require('./routes/admin/auth-admin'))
+app.use("/admin", require('./routes/admin/dashboard'))
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/Restaurant")

@@ -13,8 +13,6 @@ const useCheckAdmin = () => {
               withCredentials: true,
             }
           );
-          console.log(res);
-          
           if (res.data.isAdmin === true) {
             setIsAuthenticated(true);
           } else {

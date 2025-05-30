@@ -8,6 +8,7 @@ import Pages from "./layouts/Pages";
 import Home from "./pages/Home";
 import AdminLogin from "./admin/Login";
 import Dashboard from "./admin/pages/Dashboard";
+import Admin from "./layouts/Admin";
 
 export default function Router() {
   return (
@@ -19,9 +20,11 @@ export default function Router() {
           <Route path="/register" element={<Register />} />
         </Route>
         <Route element={<Pages />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        </Route>
+        <Route path="/admin" element={<Admin/>}>
+          <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

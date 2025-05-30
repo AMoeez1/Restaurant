@@ -6,6 +6,8 @@ import Register from "./auth/Register";
 import Profile from "./pages/Profile";
 import Pages from "./layouts/Pages";
 import Home from "./pages/Home";
+import AdminLogin from "./admin/Login";
+import Dashboard from "./admin/pages/Dashboard";
 
 export default function Router() {
   return (
@@ -13,9 +15,11 @@ export default function Router() {
       <Routes>
         <Route element={<Auth />}>
           <Route path="/login" element={<Login />} />
+          <Route path="admin/login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
         </Route>
         <Route element={<Pages />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         </Route>

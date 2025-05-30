@@ -13,7 +13,6 @@ const useCheckAuth = () => {
             withCredentials: true,
           }
         );
-        console.log(response.data.isAuthenticated);
 
         if (response.data.isAuthenticated === true) {
           setIsAuthenticated(true);

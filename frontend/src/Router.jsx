@@ -10,6 +10,7 @@ import AdminLogin from "./admin/Login";
 import Dashboard from "./admin/pages/Dashboard";
 import Admin from "./layouts/Admin";
 import AddDish from "./admin/pages/AddDish";
+import Dishes from "./admin/pages/Dishes";
 
 export default function Router() {
   return (
@@ -27,6 +28,7 @@ export default function Router() {
         <Route path="/admin" element={<Admin/>}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="add-dish" element={<AddDish />} />
+          <Route path="dishes" element={<Dishes />} />
         </Route>
       </Routes>
     </BrowserRouter>

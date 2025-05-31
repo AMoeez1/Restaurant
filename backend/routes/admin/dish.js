@@ -23,10 +23,18 @@ router.post("/add-dish", async (req, res) => {
       dish: savedDish,
     });
   } catch (err) {
-    console.error("❌ Error while adding dish:", err.message, err.stack);
+    console.error("Error while adding dish:", err.message, err.stack);
     res.status(500).json({ message: "Server error while adding dish" });
   }
 });
 
+router.get("/dishes", async (req, res) => {
+  try {
+    const dish = await Dish.find();
+    res.status(201).json(dish);
+  } catch (err) {
+    res.status(500).json({ message: "Server error fetching users" });
+  }
+});
 
 module.exports = router;

@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, InputNumber, Switch, Button, Select } from "antd";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const { TextArea } = Input;
 
 export default function EditDish({ initialValues, onSubmit }) {
   const [form] = Form.useForm();
   const { dish_id, dish_code } = useParams();
+  
+  const navigate = useNavigate();
 
   const fetchDishDetails = async () => {
     const res = await axios.get(
@@ -29,8 +32,19 @@ export default function EditDish({ initialValues, onSubmit }) {
     }
   }, [initialValues, form]);
 
-  const handleFinish = (values) => {
-    onSubmit(values);
+  const handleFinish = async (values) => {
+    try {
+      const res = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/update-dish/${dish_id}`,
+        values,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      toast.success(res.data.message)
+      navigate(`/admin/dish/${dish_code}/${dish_id}`)
+    } catch (err) {}
   };
 
   const onFinish = () => {
@@ -71,7 +85,7 @@ export default function EditDish({ initialValues, onSubmit }) {
         <Form
           layout="vertical"
           form={form}
-          onFinish={onFinish}
+          onFinish={handleFinish}
           initialValues={{ is_available: true }}
         >
           <Form.Item

@@ -12,6 +12,7 @@ import Admin from "./layouts/Admin";
 import AddDish from "./admin/pages/AddDish";
 import Dishes from "./admin/pages/Dishes";
 import EditDish from "./admin/pages/EditDish";
+import DishDetail from "./admin/pages/DishDetail";
 
 export default function Router() {
   return (
@@ -28,9 +29,10 @@ export default function Router() {
         </Route>
         <Route path="/admin" element={<Admin />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="edit-dish/:dish_code/:dish_id" element={<EditDish />} />
-          <Route path="add-dish" element={<AddDish />} />
           <Route path="dishes" element={<Dishes />} />
+          <Route path="dish/:dish_code/:dish_id" element={<DishDetail />} />
+          <Route path="add-dish" element={<AddDish />} />
+          <Route path="edit-dish/:dish_code/:dish_id" element={<EditDish />} />
         </Route>
       </Routes>
     </BrowserRouter>

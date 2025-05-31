@@ -29,7 +29,7 @@ export default function Dishes() {
       <h2 className="text-2xl font-semibold mb-4">Dishes</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {dishes.map((item) => (
-          <Link to={`/admin/edit-dish/${item.dish_code}/${item._id}`} key={item._id} className="bg-white p-4 shadow rounded">
+          <Link to={`/admin/dish/${item.dish_code}/${item._id}`} key={item._id} className="bg-white p-4 shadow rounded">
             <h3 className="text-xl font-bold">{item.name}</h3>
 
             {item.day_special && (

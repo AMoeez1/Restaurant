@@ -22,6 +22,17 @@ const DishSchema = new Schema(
       required: true,
       min: 0,
     },
+    disc_per: {
+        type: Number,
+    },
+    day_special: {
+        type: String,
+        default: ""
+    },
+    food_type: {
+        type: String,
+        default: ""
+    },
     image_url: {
       type: String,
       default: null,

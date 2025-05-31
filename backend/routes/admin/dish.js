@@ -6,7 +6,16 @@ const { validateToken, verifyAdmin } = require("../../JWT");
 
 router.post("/add-dish", async (req, res) => {
   try {
-    const { name, description, price, image_url, is_available } = req.body;
+    const {
+      name,
+      description,
+      price,
+      image_url,
+      is_available,
+      day_special,
+      food_type,
+      disc_per,
+    } = req.body;
 
     const newDish = new Dish({
       name,
@@ -14,6 +23,9 @@ router.post("/add-dish", async (req, res) => {
       price,
       image_url,
       is_available,
+      day_special,
+      food_type,
+      disc_per,
     });
 
     const savedDish = await newDish.save();

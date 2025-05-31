@@ -11,6 +11,7 @@ import Dashboard from "./admin/pages/Dashboard";
 import Admin from "./layouts/Admin";
 import AddDish from "./admin/pages/AddDish";
 import Dishes from "./admin/pages/Dishes";
+import EditDish from "./admin/pages/EditDish";
 
 export default function Router() {
   return (
@@ -23,10 +24,11 @@ export default function Router() {
         </Route>
         <Route element={<Pages />}>
           <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
-        <Route path="/admin" element={<Admin/>}>
+        <Route path="/admin" element={<Admin />}>
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="edit-dish/:dish_code/:dish_id" element={<EditDish />} />
           <Route path="add-dish" element={<AddDish />} />
           <Route path="dishes" element={<Dishes />} />
         </Route>

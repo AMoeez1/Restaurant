@@ -1,41 +1,40 @@
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  InputNumber,
-  Switch,
-  Button,
-  message,
-  Select,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, Input, InputNumber, Switch, Button, Select } from "antd";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
-export default function AddDish() {
+const { TextArea } = Input;
+
+export default function EditDish({ initialValues, onSubmit }) {
   const [form] = Form.useForm();
+  const { dish_id, dish_code } = useParams();
 
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const fetchDishDetails = async () => {
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/update-dish/${dish_id}`,
+      {
+        withCredentials: true,
+      }
+    );
+    form.setFieldsValue(res.data);
+  };
 
-  const onFinish = async (values) => {
-    setLoading(true);
-    try {
-      const response = axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/admin/add-dish`,
-        values,
-        {
-          withCredentials: true,
-        }
-      );
-      toast.success("Dish added successfully!");
-      navigate("/admin/dashboard");
-      form.resetFields();
-    } catch (err) {
-      message.error(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    fetchDishDetails();
+  }, []);
+
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues);
     }
+  }, [initialValues, form]);
+
+  const handleFinish = (values) => {
+    onSubmit(values);
+  };
+
+  const onFinish = () => {
+    console.log("vals");
   };
 
   const daysOfWeek = [
@@ -68,9 +67,7 @@ export default function AddDish() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 shadow rounded">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Add New Dish
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Edit Dish</h2>
         <Form
           layout="vertical"
           form={form}
@@ -101,10 +98,7 @@ export default function AddDish() {
                 placeholder="e.g. Rs 999"
               />
             </Form.Item>
-            <Form.Item
-              name="disc_per"
-              label="Discounted Price in %  "
-            >
+            <Form.Item name="disc_per" label="Discounted Price in %  ">
               <InputNumber
                 min={0}
                 max={99}

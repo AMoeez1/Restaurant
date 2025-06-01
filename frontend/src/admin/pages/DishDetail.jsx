@@ -63,7 +63,7 @@ export default function DishDetail() {
             </Tag>
             <Tag color="blue">{dish.food_type}</Tag>
             {dish.day_special && dish.day_special !== "Not Special" && (
-              <Tag color="purple">Special on {dish.day_special}</Tag>
+              <Tag color="purple">{dish.day_special}'s Special Dish</Tag>
             )}
           </div>
 

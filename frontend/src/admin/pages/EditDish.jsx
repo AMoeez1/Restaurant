@@ -9,7 +9,7 @@ const { TextArea } = Input;
 export default function EditDish({ initialValues, onSubmit }) {
   const [form] = Form.useForm();
   const { dish_id, dish_code } = useParams();
-  
+
   const navigate = useNavigate();
 
   const fetchDishDetails = async () => {
@@ -42,13 +42,9 @@ export default function EditDish({ initialValues, onSubmit }) {
         }
       );
       console.log(res.data);
-      toast.success(res.data.message)
-      navigate(`/admin/dish/${dish_code}/${dish_id}`)
+      toast.success(res.data.message);
+      navigate(`/admin/dish/${dish_code}/${dish_id}`);
     } catch (err) {}
-  };
-
-  const onFinish = () => {
-    console.log("vals");
   };
 
   const daysOfWeek = [
@@ -153,6 +149,14 @@ export default function EditDish({ initialValues, onSubmit }) {
 
           <Form.Item name="image_url" label="Image URL">
             <Input placeholder="https://example.com/dish.jpg" />
+          </Form.Item>
+
+          <Form.Item
+            name="is_available"
+            label="Is this dish Available?"
+            valuePropName="checked"
+          >
+            <Switch />
           </Form.Item>
 
           <Form.Item>

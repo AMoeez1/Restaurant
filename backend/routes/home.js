@@ -5,7 +5,7 @@ const Dish = require("../models/dish");
 
 router.get("/dish", async (req, res) => {
   try {
-    const dish = await Dish.find();
+    const dish = await Dish.find({ is_available: true});
     res.status(201).json(dish);
   } catch (err) {
     res.status(409).json({ message: "Error:".err });

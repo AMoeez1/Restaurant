@@ -44,13 +44,25 @@ const Home = () => {
           {dishes.map((dish) => (
             <div
               key={dish._id}
-              className="bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition"
+              className="bg-gray-50 px-2 py-6 rounded-lg shadow hover:shadow-md transition flex flex-col"
             >
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-yellow-600 mb-2">
+              <img
+                src={
+                  dish.image_url
+                    ? `${
+                        import.meta.env.VITE_BACKEND_URL
+                      }/${dish.image_url.replace(/\\/g, "/")}`
+                    : "https://via.placeholder.com/400x300?text=No+Image"
+                }
+                alt={dish.name}
+                className="w-full h-48 object-cover rounded-md mb-4"
+              />
+
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-xl font-semibold text-yellow-600">
                   {dish.name}
                 </h3>
-                <h3 className="font-semibold text-yellow-600 mb-2">
+                <h3 className="font-semibold text-yellow-600">
                   {dish.disc_per ? (
                     <>
                       <span className="text-gray-500 line-through mr-2">
@@ -69,29 +81,25 @@ const Home = () => {
                 </h3>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between mb-2">
                 {dish.day_special && (
-                  <p className="text-sm font-medium text-indigo-600 mb-1">
+                  <p className="text-sm font-medium text-indigo-600">
                     🌟 {dish.day_special} Special
                   </p>
                 )}
-                {dish.disc_per && (
+                {dish.disc_per > 0 && (
                   <span className="text-sm font-semibold text-red-500 ml-2">
                     (-{dish.disc_per}% off)
                   </span>
                 )}
               </div>
 
-              <p className="text-gray-600">Food Type: {dish.food_type}</p>
-              <p className="text-gray-600">{dish.description}</p>
-
-              <img
-                src={
-                  dish.image_url || "https://source.unsplash.com/400x300/?food"
-                }
-                alt={dish.name}
-                className="w-full h-48 object-cover rounded-md mb-4 mt-4"
-              />
+              <p className="text-gray-600 text-sm mb-2">
+                Food Type: {dish.food_type}
+              </p>
+              <p className="text-gray-600 text-sm flex-grow">
+                {dish.description}
+              </p>
             </div>
           ))}
         </div>

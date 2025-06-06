@@ -31,7 +31,7 @@ export default function pages() {
       checkAuthentication();
     },[]);
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-yellow-50">
       {/* Header */}
       <header className="bg-yellow-500 text-white p-4 shadow-md">
         <div className="max-w-7xl mx-auto flex justify-between items-center">

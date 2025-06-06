@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [dishes, setDishes] = useState([]);
@@ -36,13 +37,14 @@ const Home = () => {
       </section>
 
       {/* Featured Dishes */}
-      <section className="py-16 px-6 bg-white">
+      <section className="py-16 px-6 bg-yellow-100">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-10">
           Chef’s Specials
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {dishes.map((dish) => (
-            <div
+            <Link
+              to={`/dish/${dish.dish_code}/${dish._id}`}
               key={dish._id}
               className="bg-gray-50 px-2 py-6 rounded-lg shadow hover:shadow-md transition flex flex-col"
             >
@@ -100,7 +102,15 @@ const Home = () => {
               <p className="text-gray-600 text-sm flex-grow">
                 {dish.description}
               </p>
-            </div>
+              <div className="flex gap-4 mt-2">
+                <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
+                  Add to Cart
+                </button>
+                <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
+                  Buy Now
+                </button>
+              </div>
+            </Link>
           ))}
         </div>
       </section>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
-import { Spin, Tag } from "antd";
+import { Button, Spin, Tag } from "antd";
 
 export default function DishDetail() {
   const { dish_id } = useParams();
@@ -42,7 +42,8 @@ export default function DishDetail() {
     );
   }
 
-  const discountedPrice = dish.price - (dish.price * (dish.disc_per || 0)) / 100;
+  const discountedPrice =
+    dish.price - (dish.price * (dish.disc_per || 0)) / 100;
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
@@ -53,9 +54,7 @@ export default function DishDetail() {
           className="w-full h-64 object-cover"
         />
         <div className="p-6">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            {dish.name}
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">{dish.name}</h2>
 
           <div className="mb-4">
             <Tag color={dish.is_available ? "green" : "red"}>
@@ -75,7 +74,9 @@ export default function DishDetail() {
                 <span className="line-through text-gray-500 mr-2">
                   Rs {dish.price}
                 </span>
-                <span className="text-green-600">Rs {discountedPrice.toFixed(2)}</span>
+                <span className="text-green-600">
+                  Rs {discountedPrice.toFixed(2)}
+                </span>
                 <span className="ml-2 text-sm text-gray-500">
                   ({dish.disc_per}% off)
                 </span>
@@ -84,12 +85,26 @@ export default function DishDetail() {
               <>Rs {dish.price}</>
             )}
           </div>
-             <Link
+          <div className="flex gap-2">
+            <Link
               to={`/admin/edit-dish/${dish.dish_code}/${dish._id}`}
-              className="text-white hover:underline mt-4 inline-block bg-gray-800 hover:bg-gray-900 px-8 py-2 rounded-sm shadow-lg"
+              className="text-white hover:underline mt-4 inline-block bg-gray-800 hover:bg-gray-900 px-8 py-2 rounded-lg shadow-lg"
             >
               Edit
             </Link>
+            <button
+              className="text-white hover:underline mt-4 inline-block bg-red-500 hover:bg-red-600 px-8 py-2 rounded-lg shadow-lg"
+              onClick={() => {
+                if (
+                  window.confirm("Are you sure you want to delete this dish?")
+                ) {
+                  console.log("Deleted!");
+                }
+              }}
+            >
+              Delete Dish
+            </button>
+          </div>
         </div>
       </div>
     </div>

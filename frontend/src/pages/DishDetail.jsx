@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import useCheckAuth from "../hooks/useCheckAuth";
+import { toast } from "react-toastify";
 
 const DishDetailPage = () => {
   const { dish_code, dish_id } = useParams();
+  const [userId, setUserId] = useState(null);
   const [dish, setDish] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = useCheckAuth();
 
   const fetchDish = async () => {
     try {
@@ -13,7 +17,6 @@ const DishDetailPage = () => {
         `${import.meta.env.VITE_BACKEND_URL}/dish/${dish_id}`,
         { withCredentials: true }
       );
-      console.log(res.data);
       setDish(res.data);
     } catch (error) {
       console.error("Error fetching dish:", error);
@@ -26,6 +29,17 @@ const DishDetailPage = () => {
     fetchDish();
   }, [dish_id]);
 
+  useEffect(() => {
+    const getLoggedUserDetail = async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/get-user-detail`,
+        { withCredentials: true }
+      );
+      setUserId(res.data.user._id);
+    };
+    getLoggedUserDetail();
+  }, []);
+
   if (loading) {
     return <div className="p-6 text-center">Loading...</div>;
   }
@@ -33,6 +47,25 @@ const DishDetailPage = () => {
   if (!dish) {
     return <div className="p-6 text-center text-red-500">Dish not found.</div>;
   }
+
+  const handleCart = async () => {
+    if (isAuthenticated === true) {
+      const payload = {
+        userId: userId,
+        dishId: dish_id,
+        dish_code: dish_code,
+        quantity: 1,
+      };
+      const res = axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/add-cart`,
+        payload,
+        { withCredentials: true }
+      );
+      toast.success(res.data.message || "Added to cart successfully");
+    } else {
+      toast.warning("Login to add items in cart!");
+    }
+  };
 
   const imageUrl = dish.image_url
     ? `${import.meta.env.VITE_BACKEND_URL}/${dish.image_url.replace(
@@ -103,7 +136,10 @@ const DishDetailPage = () => {
           </p>
 
           <div className="flex gap-4">
-            <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
+            <button
+              onClick={handleCart}
+              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+            >
               Add to Cart
             </button>
             <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">

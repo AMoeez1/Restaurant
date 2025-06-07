@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const fs = require("fs");
 
 const User = require("../models/user");
-const upload = require("../middlwares/upload")
+const upload = require("../middlwares/upload");
 const { createToken, validateToken } = require("../JWT");
 
 router.post("/register", async (req, res) => {
@@ -138,26 +138,45 @@ router.get("/check-auth", validateToken, (req, res) => {
   res.json({ isAuthenticated: true });
 });
 
-router.post("/upload-avatar", validateToken, upload.single("avatar"), async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
+router.post(
+  "/upload-avatar",
+  validateToken,
+  upload.single("avatar"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.avatar && fs.existsSync(user.avatar)) {
-      fs.unlinkSync(user.avatar);
+      if (user.avatar && fs.existsSync(user.avatar)) {
+        fs.unlinkSync(user.avatar);
+      }
+
+      user.avatar = req.file.path;
+      await user.save();
+
+      res.json({
+        message: "Image uploaded successfully",
+        avatar: user.avatar,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Upload failed", error: error.message });
     }
-
-    user.avatar = req.file.path;
-    await user.save();
-
-    res.json({
-      message: "Image uploaded successfully",
-      avatar: user.avatar,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Upload failed", error: error.message });
   }
+);
+
+router.get("/get-user-detail", validateToken, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ isAuthenticated: false });
+  }
+
+  res.json({
+    isAuthenticated: true,
+    user: {
+      _id: req.user.id,
+      email: req.user.email,
+    },
+  });
 });
 
 

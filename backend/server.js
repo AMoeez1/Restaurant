@@ -21,9 +21,9 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // app.use(cors());
 
-
 app.use("/", require("./routes/auth"));
 app.use("/", require('./routes/home'));
+app.use("/", require('./routes/cart'));
 app.use("/admin", require('./routes/admin/auth-admin'));
 app.use("/admin", require('./routes/admin/dashboard'));
 app.use("/admin", require('./routes/admin/dish'));

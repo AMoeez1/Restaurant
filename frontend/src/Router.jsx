@@ -14,6 +14,7 @@ import Dishes from "./admin/pages/Dishes";
 import EditDish from "./admin/pages/EditDish";
 import DishDetail from "./admin/pages/DishDetail";
 import DishDetailPage from "./pages/DishDetail";
+import Cart from "./pages/Cart";
 
 export default function Router() {
   return (
@@ -27,6 +28,7 @@ export default function Router() {
         <Route element={<Pages />}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/dish/:dish_code/:dish_id" element={<DishDetailPage />} />
         </Route>
         <Route path="/admin" element={<Admin />}>

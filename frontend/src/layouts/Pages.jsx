@@ -1,35 +1,34 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import axios from "axios";
 
-
 export default function pages() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-    useEffect(() => {
-      const checkAuthentication = async () => {
-        try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/check-auth`,
-            {
-              withCredentials: true,
-            }
-          );
-          console.log(response.data.isAuthenticated);
-          
-          if (response.data.isAuthenticated === true) {
-            setIsAuthenticated(true);
-          } else {
-            setIsAuthenticated(false);
-            console.log(res.data.message)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/check-auth`,
+          {
+            withCredentials: true,
           }
-        } catch (err) {
+        );
+        console.log(response.data.isAuthenticated);
+
+        if (response.data.isAuthenticated === true) {
+          setIsAuthenticated(true);
+        } else {
           setIsAuthenticated(false);
+          console.log(res.data.message);
         }
-      };
-  
-      checkAuthentication();
-    },[]);
+      } catch (err) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
   return (
     <div className="min-h-screen flex flex-col bg-yellow-50">
       {/* Header */}
@@ -50,16 +49,24 @@ export default function pages() {
                 </Link>
               </>
             ) : (
-              <Link to="/profile" className="hover:underline">
-                Profile
-              </Link>
+              <>
+                <Link to="/profile" className="hover:underline">
+                  Profile
+                </Link>
+                <Link
+                  to="/cart"
+                  className="hover:bg-green-600 bg-green-500 py-2 px-4 rounded-lg shadow-lg"
+                >
+                  Cart
+                </Link>
+              </>
             )}
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4">
+      <main className="px-4">
         <Outlet />
       </main>
 

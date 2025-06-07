@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import Cookies from "js-cookie";
 import axios from "axios";
 
 export default function pages() {

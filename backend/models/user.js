@@ -29,6 +29,30 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-}, { timestamps: true }); 
+  phone: {
+    type: String,
+    required: false, 
+    trim: true,
+    match: [/^\+?[0-9\s\-]{7,15}$/, "Please enter a valid phone number"],
+  },
+  address: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: 200,
+  },
+  city: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: 100,
+  },
+  postalCode: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: 20,
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

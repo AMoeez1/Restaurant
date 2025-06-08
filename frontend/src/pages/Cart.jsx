@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import useCheckAuth from "../hooks/useCheckAuth";
+import useGetUserDetail from "../hooks/useGetUserDetail";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Cart = () => {
-  const [userId, setUserId] = useState(null);
+  const isAuthenticated = useCheckAuth();
+  const { user, loading: userLoading, error: userError } = useGetUserDetail();
+
   const [cart, setCart] = useState([]);
   const [quantities, setQuantities] = useState({});
-  const isAuthenticated = useCheckAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,28 +21,10 @@ const Cart = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/get-user-detail`,
-          { withCredentials: true }
-        );
-        setUserId(res.data.user._id);
-      } catch (error) {
-        console.error("Failed to fetch user details:", error);
-      }
-    };
-
-    if (isAuthenticated) {
-      fetchUserDetails();
-    }
-  }, [isAuthenticated]);
-
-  useEffect(() => {
     const fetchCartItems = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/get-cart-item/${userId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/get-cart-item/${user._id}`,
           { withCredentials: true }
         );
         setCart(res.data.items);
@@ -55,10 +39,10 @@ const Cart = () => {
       }
     };
 
-    if (userId) {
+    if (user && isAuthenticated) {
       fetchCartItems();
     }
-  }, [userId]);
+  }, [user, isAuthenticated]);
 
   const handleQuantityChange = async (itemId, newQty, dishId) => {
     if (newQty < 1) return;
@@ -75,12 +59,10 @@ const Cart = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/update-cart/${userId}/${dishId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/update-cart/${user._id}/${dishId}`,
         { quantity: newQty },
         { withCredentials: true }
       );
-      console.log(dishId);
-      console.log("dish Id".dishId);
     } catch (err) {
       console.error("Failed to update cart:", err);
       toast.error("Failed to update cart.");
@@ -89,19 +71,20 @@ const Cart = () => {
 
   const handleRemoveCartItem = async (itemId, dishId) => {
     try {
-      const res = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/delete-cart/${userId}/${dishId}`,
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/delete-cart/${user._id}/${dishId}`,
         { withCredentials: true }
       );
       setCart((prev) => prev.filter((item) => item._id !== itemId));
       toast.success("Item Removed From Cart");
     } catch (err) {
       toast.error("Error removing Item from the cart");
-      console.error("Error deleting item:", error);
+      console.error("Error deleting item:", err);
     }
   };
 
-  if (isAuthenticated === null) return <div>Loading...</div>;
+  if (isAuthenticated === null || userLoading) return <div>Loading...</div>;
+  if (userError) return <div>Error loading user details: {userError}</div>;
 
   const { totalBeforeDiscount, totalAfterDiscount, totalSaved } = cart.reduce(
     (totals, item) => {
@@ -238,7 +221,10 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <button onClick={() =>handleRemoveCartItem(item._id, dish._id)} className="text-sm text-red-500 hover:text-red-600 font-medium">
+                    <button
+                      onClick={() => handleRemoveCartItem(item._id, dish._id)}
+                      className="text-sm text-red-500 hover:text-red-600 font-medium"
+                    >
                       Remove
                     </button>
                   </li>
@@ -250,27 +236,29 @@ const Cart = () => {
       </div>
 
       <div className="col-span-3">
-        <div className="mt-8 text-right space-y-1">
-          <p className="text-sm text-gray-600">
-            Total (before discount):{" "}
-            <span className="font-medium text-gray-800">
-              Rs {totalBeforeDiscount.toFixed(0)}
-            </span>
-          </p>
-          <p className="text-sm text-green-600">
-            You Saved:{" "}
-            <span className="font-semibold">Rs {totalSaved.toFixed(0)}</span>
-          </p>
-          <p className="text-lg font-semibold text-gray-800">
-            Total Payable:{" "}
-            <span className="text-green-600 font-bold">
-              Rs {totalAfterDiscount.toFixed(0)}
-            </span>
-          </p>
-          <button className="mt-3 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md shadow">
-            Proceed to Checkout
-          </button>
-        </div>
+        {cart.length === 0 ? null : (
+          <div className="mt-8 text-right space-y-1">
+            <p className="text-sm text-gray-600">
+              Total (before discount):{" "}
+              <span className="font-medium text-gray-800">
+                Rs {totalBeforeDiscount.toFixed(0)}
+              </span>
+            </p>
+            <p className="text-sm text-green-600">
+              You Saved:{" "}
+              <span className="font-semibold">Rs {totalSaved.toFixed(0)}</span>
+            </p>
+            <p className="text-lg font-semibold text-gray-800">
+              Total Payable:{" "}
+              <span className="text-green-600 font-bold">
+                Rs {totalAfterDiscount.toFixed(0)}
+              </span>
+            </p>
+            <button className="mt-3 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md shadow">
+              Proceed to Checkout
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );

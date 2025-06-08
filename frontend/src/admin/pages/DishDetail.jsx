@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Button, Spin, Tag } from "antd";
+import { toast } from "react-toastify";
 
 export default function DishDetail() {
   const { dish_id } = useParams();
   const [dish, setDish] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
 
   const fetchDish = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/update-dish/${dish_id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/dish/${dish_id}`,
         { withCredentials: true }
       );
       setDish(res.data);
+      console.log(res.data)
     } catch (error) {
       console.error("Error fetching dish:", error);
     } finally {
@@ -25,6 +28,20 @@ export default function DishDetail() {
   useEffect(() => {
     fetchDish();
   }, [dish_id]);
+
+  const handleDeleteDish = async () => {
+    try {
+      const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-dish/${dish._id}`,
+        {withCredentials: true }
+      );
+      toast.success(res.data.message);
+      navigate('/admin/dishes')
+      console.log(res.data);
+      
+    } catch (err) {
+      toast.error("Error Deleting Dish");
+    }
+  }
 
   if (loading) {
     return (
@@ -49,9 +66,11 @@ export default function DishDetail() {
     <div className="min-h-screen bg-gray-100 py-10 px-4">
       <div className="max-w-3xl mx-auto bg-white shadow-md rounded-md overflow-hidden">
         <img
-          src={dish.image_url || "https://source.unsplash.com/800x400/?food"}
+          src={dish.image_url ? `${
+                        import.meta.env.VITE_BACKEND_URL
+                      }/${dish.image_url.replace(/\\/g, "/")}` : "https://source.unsplash.com/800x400/?food"}
           alt={dish.name}
-          className="w-full h-64 object-cover"
+          className="w-full h-64 object-contain bg-black"
         />
         <div className="p-6">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">{dish.name}</h2>
@@ -94,13 +113,7 @@ export default function DishDetail() {
             </Link>
             <button
               className="text-white hover:underline mt-4 inline-block bg-red-500 hover:bg-red-600 px-8 py-2 rounded-lg shadow-lg"
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you want to delete this dish?")
-                ) {
-                  console.log("Deleted!");
-                }
-              }}
+              onClick={handleDeleteDish}
             >
               Delete Dish
             </button>

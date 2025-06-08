@@ -1,20 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useGetDishes from "../hooks/useGetDishes";
 
 const Home = () => {
-  const [dishes, setDishes] = useState([]);
-  const fetchDishes = async () => {
-    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dish`, {
-      withCredentials: true,
-    });
-    console.log(res.data);
-    setDishes(res.data);
-  };
+  const { dishes, loading, error } = useGetDishes();
 
-  useEffect(() => {
-    fetchDishes();
-  }, []);
+if (loading) return <p>Loading dishes...</p>;
+if (error) return <p>Error loading dishes: {error.message}</p>;
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -106,9 +99,9 @@ const Home = () => {
                 <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
                   Add to Cart
                 </button>
-                <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
+                <Link to={`/checkout/${dish._id}`} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
                   Buy Now
-                </button>
+                </Link>
               </div>
             </Link>
           ))}

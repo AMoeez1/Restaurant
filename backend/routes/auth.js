@@ -94,9 +94,38 @@ router.get("/profile", validateToken, async (req, res) => {
   }
 });
 
+// router.put("/profile", validateToken, async (req, res) => {
+//   try {
+//     const { name, email } = req.body;
+
+//     if (!name || !email) {
+//       return res
+//         .status(409)
+//         .send({ message: "Name and email fields are required" });
+//     }
+
+//     const updatedUser = await User.findByIdAndUpdate(
+//       req.user.id,
+//       { name, email },
+//       { new: true, runValidators: true }
+//     ).select("-password");
+
+//     if (!updatedUser) {
+//       return res.status(409).send({ message: "Error Updating User!" });
+//     }
+
+//     res.json({
+//       message: "Profile Updated Successfully",
+//       user: updatedUser,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error", error: error.message });
+//   }
+// });
+
 router.put("/profile", validateToken, async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, avatar, phone, address, city, postalCode } = req.body;
 
     if (!name || !email) {
       return res
@@ -104,9 +133,17 @@ router.put("/profile", validateToken, async (req, res) => {
         .send({ message: "Name and email fields are required" });
     }
 
+    const updateData = { name, email };
+
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (phone !== undefined) updateData.phone = phone;
+    if (address !== undefined) updateData.address = address;
+    if (city !== undefined) updateData.city = city;
+    if (postalCode !== undefined) updateData.postalCode = postalCode;
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
-      { name, email },
+      updateData,
       { new: true, runValidators: true }
     ).select("-password");
 
@@ -115,13 +152,15 @@ router.put("/profile", validateToken, async (req, res) => {
     }
 
     res.json({
-      message: "Profile Updated Successfully",
+      message: "Updated Successfully",
       user: updatedUser,
     });
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
+
 
 router.get("/logout", (req, res) => {
   res.cookie("access-token", "", {

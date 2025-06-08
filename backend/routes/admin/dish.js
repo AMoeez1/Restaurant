@@ -52,7 +52,7 @@ router.get("/dishes", async (req, res) => {
   }
 });
 
-router.get("/update-dish/:dish_id", async (req, res) => {
+router.get("/get-dish/:dish_id", async (req, res) => {
   const { dish_id } = req.params;
   const dish = await Dish.findById(dish_id);
   if (!dish) {
@@ -106,7 +106,7 @@ router.put("/update-dish/:dish_id", async (req, res) => {
 
 router.delete('/delete-dish/:dish_id', async (req, res) => {
   const {dish_id} = req.params;
-  const dish = Dish.findByIdAndDelete(dish_id)
+  const dish = await Dish.findByIdAndDelete(dish_id)
 
   if(!dish_id) {
     return res.status(404).json({message: 'No Dish Found'})
@@ -115,7 +115,7 @@ router.delete('/delete-dish/:dish_id', async (req, res) => {
     return res.status(404).json({message: 'Error Deleting Dish'})
   }
 
-  return res.status(201).json({message :"Delete Successfully"})
+  return res.status(201).json({message :"Dish Delete Successfully"})
 })
 
 module.exports = router;

@@ -1,38 +1,16 @@
-import axios from "axios";
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { Skeleton } from "antd";
 import useCheckAuth from "../hooks/useCheckAuth";
-import { Button, Skeleton } from "antd";
+import useGetUserDetail from "../hooks/useGetUserDetail";
 import EditProfileModal from "../components/auth/EditProfileModal";
 
 function Profile() {
-  const [data, setData] = useState({});
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/profile`,
-          {
-            withCredentials: true,
-          }
-        );
-        // console.log(res.data.user)
-        setData(res.data.user);
-      } catch (err) {
-        // toast.error(err.response?.data?.message || "Something went wrong");
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
   const isAuthenticated = useCheckAuth();
+  const { user, loading, error } = useGetUserDetail();
 
   useEffect(() => {
     if (isAuthenticated === false) {
@@ -41,7 +19,7 @@ function Profile() {
     }
   }, [isAuthenticated, navigate]);
 
-  if (isAuthenticated === null) {
+  if (loading) {
     return (
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
         <Skeleton.Avatar
@@ -60,37 +38,33 @@ function Profile() {
     );
   }
 
+  if (error) return <p>Error: {error}</p>;
+
   const handleLogout = async () => {
-    console.log("button clicked");
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/logout`,
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(res.data);
-      navigate("/login");
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/logout`, {
+        withCredentials: true,
+      });
       toast.success(res.data);
+      navigate("/login");
     } catch (err) {
-      toast.error(err.res?.data || "Logout failed");
+      toast.error(err.response?.data || "Logout failed");
     }
   };
 
-  const user = {
-    name: data.name,
-    email: data.email,
-    avatar: data.avatar
+  if (!user) return null; 
+
+  const profileUser = {
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
   };
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
-      {data?.avatar ? (
+      {user.avatar ? (
         <img
-          src={`${import.meta.env.VITE_BACKEND_URL}/${data.avatar.replace(
-            /\\/g,
-            "/"
-          )}`}
+          src={`${import.meta.env.VITE_BACKEND_URL}/${user.avatar.replace(/\\/g, "/")}`}
           alt="Profile"
           className="w-32 h-32 rounded-full mx-auto"
           style={{ objectFit: "cover" }}
@@ -103,11 +77,11 @@ function Profile() {
         />
       )}
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-1">{data.name}</h2>
-      <p className="text-gray-600 mb-6">{data.email}</p>
+      <h2 className="text-2xl font-bold text-gray-800 mb-1">{user.name}</h2>
+      <p className="text-gray-600 mb-6">{user.email}</p>
 
       <div className="mt-8 flex justify-center gap-4">
-        <EditProfileModal user={user} />
+        <EditProfileModal user={profileUser} />
         <button
           onClick={handleLogout}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded"

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useCheckAdmin from "../../hooks/useCheckAdmin";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Spin } from "antd";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -36,14 +37,20 @@ export default function Dashboard() {
   }, [isAuthenticated, navigate]);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 shadow rounded">Total Orders: 120</div>
-        <div className="bg-white p-4 shadow rounded">Total Users: {allUsers.length}</div>
+        <div className="bg-white p-4 shadow rounded">
+          Total Users: {allUsers.length}
+        </div>
         <div className="bg-white p-4 shadow rounded">Reservations: 45</div>
         <div className="bg-white p-4 shadow rounded">Menu Items: 32</div>
       </div>

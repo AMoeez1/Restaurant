@@ -3,46 +3,22 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import useCheckAuth from "../hooks/useCheckAuth";
 import { toast } from "react-toastify";
+import useGetSingleDish from "../hooks/useGetSingleDish";
+import useGetUserDetail from "../hooks/useGetUserDetail";
 
 const DishDetailPage = () => {
   const { dish_code, dish_id } = useParams();
-  const [userId, setUserId] = useState(null);
-  const [dish, setDish] = useState(null);
-  const [loading, setLoading] = useState(true);
+
   const isAuthenticated = useCheckAuth();
+  const { dish, loading, error } = useGetSingleDish(dish_id);
+  const { user, loading: userLoading, error: userError } = useGetUserDetail();
 
-  const fetchDish = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/dish/${dish_id}`,
-        { withCredentials: true }
-      );
-      setDish(res.data);
-    } catch (error) {
-      console.error("Error fetching dish:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) return <p>Loading dish...</p>;
+  if (error) return <p>Error loading dish: {error.message}</p>;
 
-  useEffect(() => {
-    fetchDish();
-  }, [dish_id]);
-
-  useEffect(() => {
-    const getLoggedUserDetail = async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/get-user-detail`,
-        { withCredentials: true }
-      );
-      setUserId(res.data.user._id);
-    };
-    getLoggedUserDetail();
-  }, []);
-
-  if (loading) {
-    return <div className="p-6 text-center">Loading...</div>;
-  }
+  if (loading || userLoading) return <p>Loading...</p>;
+  if (error) return <p>Error loading dish: {error.message}</p>;
+  if (userError) return <p>Error loading user details: {userError}</p>;
 
   if (!dish) {
     return <div className="p-6 text-center text-red-500">Dish not found.</div>;
@@ -51,12 +27,12 @@ const DishDetailPage = () => {
   const handleCart = async () => {
     if (isAuthenticated === true) {
       const payload = {
-        userId: userId,
+        userId: user._id,
         dishId: dish_id,
         dish_code: dish_code,
         quantity: 1,
       };
-      const res = axios.post(
+      const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/add-cart`,
         payload,
         { withCredentials: true }

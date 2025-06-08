@@ -11,49 +11,59 @@ const Checkout = () => {
   const navigate = useNavigate();
 
   const { user, loading: userLoading, error: userError } = useGetUserDetail();
-  const { cart, loading: cartLoading, error: cartError } = useGetCartItems(user?._id);
+  const {
+    cart,
+    loading: cartLoading,
+    error: cartError,
+  } = useGetCartItems(user?._id);
 
   const handleSubmit = async (values) => {
-  if (!user?._id) {
-    toast.error("User not authenticated!");
-    return;
-  }
+    if (!user?._id) {
+      toast.error("User not authenticated!");
+      return;
+    }
 
-  try {
-    await axios.put(
-      `${import.meta.env.VITE_BACKEND_URL}/profile`,
-      {
-        userId: user._id,
-        name: values.name,
-        email: user.email,
-        phone: values.phone,
-        address: values.address,
-        city: values.city,
-        postalCode: values.postalCode,
-      },
-      { withCredentials: true }
-    );
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/profile`,
+        {
+          userId: user._id,
+          name: values.name,
+          email: user.email,
+          phone: values.phone,
+          address: values.address,
+          city: values.city,
+          postalCode: values.postalCode,
+        },
+        { withCredentials: true }
+      );
 
-    // await axios.post(
-    //   `${import.meta.env.VITE_BACKEND_URL}/place-order`,
-    //   {
-    //     userId: user._id,
-    //     deliveryDetails: values,
-    //     items: cart.map((item) => ({
-    //       dishId: item.dishId._id,
-    //       quantity: item.quantity,
-    //     })),
-    //   },
-    //   { withCredentials: true }
-    // );
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/place-order`,
+        {
+          userId: user._id,
+          deliveryDetails: {
+            name: values.name,
+            phone: values.phone,
+            address: values.address,
+            city: values.city,
+            postalCode: values.postalCode,
+          },
+          items: cart.map((item) => ({
+            dishId: item.dishId._id,
+            quantity: item.quantity,
+          })),
+        },
+        { withCredentials: true }
+      );
 
-    toast.success("Profile updated and order placed successfully!");
-    navigate("/orders");
-  } catch (err) {
-    toast.error("Failed to update profile or place order");
-    console.error(err);
-  }
-};
+      toast.success("Order placed successfully!");
+      navigate("/cart");
+    } catch (err) {
+      toast.error("Failed to update profile or place order");
+      console.error(err);
+    }
+  };
 
   if (userLoading || cartLoading) return <div className="p-6">Loading...</div>;
   if (userError) return <div className="p-6 text-red-500">{userError}</div>;
@@ -95,7 +105,9 @@ const Checkout = () => {
         <Form.Item
           label="Phone Number"
           name="phone"
-          rules={[{ required: true, message: "Please enter your phone number" }]}
+          rules={[
+            { required: true, message: "Please enter your phone number" },
+          ]}
         >
           <Input type="tel" placeholder="Phone Number" />
         </Form.Item>

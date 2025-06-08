@@ -22,7 +22,7 @@ export default function Router() {
       <Routes>
         <Route element={<Auth />}>
           <Route path="/login" element={<Login />} />
-          <Route path="admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
         </Route>
         <Route element={<Pages />}>

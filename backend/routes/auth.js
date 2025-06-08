@@ -43,7 +43,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const existsUser = await User.findOne({ email });
+    const existsUser = await User.findOne({ email }).select('+password');
     if (!existsUser) {
       return res
         .status(409)

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seeder": "node models/seeders/admin.js"
+    "seeder": "node models/seeders/admin.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",

@@ -5,22 +5,11 @@ const User = require("../../models/user");
 const Order = require("../../models/Order");
 const { validateToken, verifyAdmin } = require("../../JWT");
 
-// router.get("/dashboard", validateToken, verifyAdmin, async (req, res) => {
-//   try {
-//     const users = await User.find().select("-password");
-
-//     res.status(200).json({users, orders});
-//   } catch (err) {
-//     console.error("Error fetching users:", err);
-//     res.status(500).json({ message: "Server error fetching users" });
-//   }
-// });
-
 router.get("/orders", async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email")
-      .populate("items.dishId", "name price")
+      .populate("items.dishId", "name price image_url")
       .sort({ createdAt: -1 });
 
     const count = await Order.countDocuments();

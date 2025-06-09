@@ -61,4 +61,34 @@ router.post("/place-order", validateToken, async (req, res) => {
   }
 });
 
+router.get('/orders/:user_id',async (req, res) => {
+  try {
+    const {user_id} = req.params;
+    const orders = await Order.find({user: user_id})
+    .populate("items.dishId", "name price image_url")
+      .sort({ createdAt: -1 });;
+    res.status(200).json(orders)
+  } catch (err) {
+    res.status(500).json({message: "Error"});
+  }
+})
+
+router.patch('/orders/:orderId/status', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({ message: "Order status updated", order });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating order status" });
+  }
+});
+
+
 module.exports = router;

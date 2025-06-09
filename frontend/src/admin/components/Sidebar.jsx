@@ -4,8 +4,10 @@ import {
   AppstoreOutlined,
   FileAddOutlined,
   UnorderedListOutlined,
+  ShoppingCartOutlined,
   CalendarOutlined,
   SettingOutlined,
+  CoffeeOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 
@@ -18,7 +20,7 @@ export default function Sidebar() {
     },
     {
       key: "menu",
-      icon: <AppstoreOutlined />,
+      icon: <CoffeeOutlined />,
       label: "Dishes",
       children: [
         {
@@ -34,6 +36,18 @@ export default function Sidebar() {
       ],
     },
     {
+      key: "orders",
+      icon: <ShoppingCartOutlined />,
+      label: "Orders",
+      children: [
+        {
+          key: "view-orders",
+          icon: <UnorderedListOutlined />,
+          label: <Link to="/admin/orders">View Orders</Link>,
+        },
+      ],
+    },
+    {
       key: "reservations",
       icon: <CalendarOutlined />,
       label: <Link to="/admin/reservations">Reservations</Link>,
@@ -45,22 +59,12 @@ export default function Sidebar() {
     },
   ];
 
-  const onClick = (e) => {
-    console.log("Menu item clicked:", e);
-  };
-
   return (
-    <div className="bg-gray-950 min-h-screen text-white p-4">
+    <div className="fixed left-0 top-0 h-screen w-64 bg-gray-950 text-white p-4 z-50">
       <h2 className="text-xl font-bold mb-6 text-white text-center">
         Restaurant Admin
       </h2>
-      <Menu
-        onClick={onClick}
-        style={{ width: "100%" }}
-        mode="inline"
-        theme="dark"
-        items={items}
-      />
+      <Menu mode="inline" theme="dark" items={items} style={{ border: "none" }} />
     </div>
   );
 }

@@ -11,24 +11,31 @@ export default function Dashboard() {
 
   const [allUsers, setAllUsers] = useState([]);
 
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/admin/dashboard`,
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(res.data);
-      setAllUsers(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [orders, setOrders] = useState([]);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUsers();
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/admin/orders`,
+          {
+            withCredentials: true,
+          }
+        );
+        // setOrders(res.data.orders);
+        setCount(res.data.count);
+      } catch (err) {
+        console.error("Failed to fetch orders", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
   }, []);
+
   useEffect(() => {
     if (isAuthenticated === false) {
       toast.warning("You must be an admin to access this page");
@@ -47,7 +54,7 @@ export default function Dashboard() {
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 shadow rounded">Total Orders: 120</div>
+        <div className="bg-white p-4 shadow rounded">Total Orders: {count}</div>
         <div className="bg-white p-4 shadow rounded">
           Total Users: {allUsers.length}
         </div>

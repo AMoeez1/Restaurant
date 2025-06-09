@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Select, Tag } from "antd";
+const { Option } = Select;
+
 import { toast } from "react-toastify";
 
 export default function Orders() {
@@ -35,6 +37,7 @@ export default function Orders() {
 
   const openModal = (order) => {
     setSelectedOrder(order);
+    setCurrentStatus(order.status);
     setIsModalOpen(true);
   };
 
@@ -45,6 +48,19 @@ export default function Orders() {
 
   const handleStatusChange = async (newStatus) => {
     if (!selectedOrder) return;
+
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "processing",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!validStatuses.includes(newStatus)) {
+      toast.error("Invalid status selected.");
+      return;
+    }
 
     setStatusLoading(true);
 
@@ -58,7 +74,6 @@ export default function Orders() {
       );
 
       toast.success("Order status updated");
-      setCurrentStatus(newStatus);
 
       const updatedOrder = res.data.order;
       setSelectedOrder(updatedOrder);
@@ -67,9 +82,11 @@ export default function Orders() {
           order._id === updatedOrder._id ? updatedOrder : order
         )
       );
+      setCurrentStatus(newStatus);
+
       setIsModalOpen(false);
     } catch (error) {
-      message.error("Failed to update status");
+      toast.error("Failed to update status");
     } finally {
       setStatusLoading(false);
     }
@@ -77,15 +94,17 @@ export default function Orders() {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 mb-4">
-        <div className="p-4 bg-blue-100 rounded-lg shadow-md flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-blue-600">Total Orders</h3>
-          <p className="text-2xl font-bold text-blue-900">{orders.length}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-4">
+        <div className="p-3 bg-blue-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-blue-600">Total Orders</h3>
+          <p className="text-xl font-bold text-blue-900">{orders.length}</p>
         </div>
 
-        <div className="p-4 bg-orange-100 rounded-lg shadow-md flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-orange-600">Pending Orders</h3>
-          <p className="text-2xl font-bold text-orange-900">
+        <div className="p-3 bg-orange-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-orange-600">
+            Pending Orders
+          </h3>
+          <p className="text-xl font-bold text-orange-900">
             {
               orders.filter((order) => order.status.toLowerCase() === "pending")
                 .length
@@ -93,9 +112,24 @@ export default function Orders() {
           </p>
         </div>
 
-        <div className="p-4 bg-purple-100 rounded-lg shadow-md flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-purple-600">Processing Orders</h3>
-          <p className="text-2xl font-bold text-purple-900">
+        <div className="p-3 bg-yellow-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-yellow-600">
+            Confirmed Orders
+          </h3>
+          <p className="text-xl font-bold text-yellow-600">
+            {
+              orders.filter(
+                (order) => order.status.toLowerCase() === "confirmed"
+              ).length
+            }
+          </p>
+        </div>
+
+        <div className="p-3 bg-purple-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-purple-600">
+            Processing Orders
+          </h3>
+          <p className="text-xl font-bold text-purple-900">
             {
               orders.filter(
                 (order) => order.status.toLowerCase() === "processing"
@@ -104,9 +138,11 @@ export default function Orders() {
           </p>
         </div>
 
-        <div className="p-4 bg-green-100 rounded-lg shadow-md flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-green-600">Delivered Orders</h3>
-          <p className="text-2xl font-bold text-green-900">
+        <div className="p-3 bg-green-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-green-600">
+            Delivered Orders
+          </h3>
+          <p className="text-xl font-bold text-green-900">
             {
               orders.filter(
                 (order) => order.status.toLowerCase() === "delivered"
@@ -115,9 +151,11 @@ export default function Orders() {
           </p>
         </div>
 
-        <div className="p-4 bg-red-100 rounded-lg shadow-md flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-red-600">Cancelled Orders</h3>
-          <p className="text-2xl font-bold text-red-900">
+        <div className="p-3 bg-red-100 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-sm font-semibold text-red-600">
+            Cancelled Orders
+          </h3>
+          <p className="text-xl font-bold text-red-900">
             {
               orders.filter(
                 (order) => order.status.toLowerCase() === "cancelled"
@@ -136,7 +174,7 @@ export default function Orders() {
           <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200 rounded">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="">
                   <th className="py-3 px-4 border-b cursor-pointer">
                     Order Code
                   </th>
@@ -176,7 +214,13 @@ export default function Orders() {
                             ? "text-green-600"
                             : order.status === "cancelled"
                             ? "text-red-500"
-                            : "text-yellow-600"
+                            : order.status === "confirmed"
+                            ? "text-yellow-600"
+                            : order.status === "processing"
+                            ? "text-purple-600"
+                            : order.status === "pending"
+                            ? "text-orange-500"
+                            : "text-gray-600"
                         }`}
                       >
                         {order.status}
@@ -287,6 +331,7 @@ export default function Orders() {
                 style={{ width: 160 }}
               >
                 <Option value="pending">Pending</Option>
+                <Option value="confirmed">Confirmed</Option>
                 <Option value="processing">Processing</Option>
                 <Option value="delivered">Delivered</Option>
                 <Option value="cancelled">Cancelled</Option>

@@ -17,7 +17,6 @@ export default function useGetUserDetail() {
         setUser(res.data.user);
       } catch (err) {
         const msg = err.response?.data?.message || "Something went wrong";
-        toast.error(msg);
         setError(msg);
       } finally {
         setLoading(false);

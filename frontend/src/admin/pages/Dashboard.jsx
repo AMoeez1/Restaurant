@@ -16,6 +16,19 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchTable = async () => {
+     try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/admin/tables`,
+          {
+            withCredentials: true,
+          }
+        );
+        console.log(res.data);
+     } catch (err) {
+
+     } 
+    }
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
@@ -34,6 +47,7 @@ export default function Dashboard() {
     };
 
     fetchOrders();
+    fetchTable();
   }, []);
 
   useEffect(() => {

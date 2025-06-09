@@ -3,22 +3,30 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import useCheckAuth from "../hooks/useCheckAuth";
 import { toast } from "react-toastify";
+import { Popover, Button, Spin } from "antd";
+import { useNavigate } from "react-router-dom";
 import useGetSingleDish from "../hooks/useGetSingleDish";
 import useGetUserDetail from "../hooks/useGetUserDetail";
 
 const DishDetailPage = () => {
   const { dish_code, dish_id } = useParams();
+  const navigate = useNavigate();
 
   const isAuthenticated = useCheckAuth();
   const { dish, loading, error } = useGetSingleDish(dish_id);
   const { user, loading: userLoading, error: userError } = useGetUserDetail();
+  const [activePopover, setActivePopover] = useState({
+    dishId: null,
+    type: null,
+  });
 
-  if (loading) return <p>Loading dish...</p>;
+  if (loading) return (
+  <div className="flex justify-center items-center min-h-[200px]">
+    <Spin size="large" tip="Loading dish..." />
+  </div>
+  )
   if (error) return <p>Error loading dish: {error.message}</p>;
 
-  if (loading || userLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading dish: {error.message}</p>;
-  if (userError) return <p>Error loading user details: {userError}</p>;
 
   if (!dish) {
     return <div className="p-6 text-center text-red-500">Dish not found.</div>;
@@ -39,9 +47,26 @@ const DishDetailPage = () => {
       );
       toast.success(res.data.message || "Added to cart successfully");
     } else {
-      toast.warning("Login to add items in cart!");
+      setActivePopover({ dishId: dish._id, type: "cart" });
     }
   };
+
+  const handleBuyNow = () => {
+    if (isAuthenticated === true) {
+      navigate("/checkout");
+    } else {
+      setActivePopover({ dishId: dish._id, type: "buyNow" });
+    }
+  };
+
+  const popoverContent = (
+    <div>
+      <p>You need to be logged in to proceed.</p>
+      <Button type="primary" onClick={() => navigate("/login")}>
+        Login
+      </Button>
+    </div>
+  );
 
   const imageUrl = dish.image_url
     ? `${import.meta.env.VITE_BACKEND_URL}/${dish.image_url.replace(
@@ -71,7 +96,6 @@ const DishDetailPage = () => {
           )}
         </section>
 
-        {/* Content Section */}
         <section className="flex-1 p-6 flex flex-col justify-center">
           <h1 className="text-2xl font-extrabold text-yellow-700 drop-shadow-md mb-4">
             {dish.name}
@@ -112,15 +136,45 @@ const DishDetailPage = () => {
           </p>
 
           <div className="flex gap-4">
-            <button
-              onClick={handleCart}
-              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+            <Popover
+              content={popoverContent}
+              title="Login Required"
+              trigger="click"
+              open={
+                activePopover.dishId === dish._id &&
+                activePopover.type === "cart"
+              }
+              onOpenChange={(visible) => {
+                if (!visible) setActivePopover({ dishId: null, type: null });
+              }}
             >
-              Add to Cart
-            </button>
-            <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
-              Buy Now
-            </button>
+              <button
+                onClick={handleCart}
+                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+              >
+                Add to Cart
+              </button>
+            </Popover>
+
+            <Popover
+              content={popoverContent}
+              title="Login Required"
+              trigger="click"
+              open={
+                activePopover.dishId === dish._id &&
+                activePopover.type === "buyNow"
+              }
+              onOpenChange={(visible) => {
+                if (!visible) setActivePopover({ dishId: null, type: null });
+              }}
+            >
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+              >
+                Buy Now
+              </button>
+            </Popover>
           </div>
         </section>
       </div>

@@ -28,6 +28,7 @@ app.use("/", require('./routes/order'));
 app.use("/admin", require('./routes/admin/auth-admin'));
 app.use("/admin", require('./routes/admin/dashboard'));
 app.use("/admin", require('./routes/admin/dish'));
+app.use("/admin", require('./routes/admin/table'));
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/Restaurant")

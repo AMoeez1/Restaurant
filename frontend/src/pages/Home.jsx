@@ -1,13 +1,40 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useGetDishes from "../hooks/useGetDishes";
+import useCheckAuth from "../hooks/useCheckAuth";
+import { Button, Popover } from "antd";
 
 const Home = () => {
   const { dishes, loading, error } = useGetDishes();
+  const isAuthenticated = useCheckAuth();
+  const [activePopover, setActivePopover] = useState({
+    dishId: null,
+    type: null,
+  });
 
-if (loading) return <p>Loading dishes...</p>;
-if (error) return <p>Error loading dishes: {error.message}</p>;
+  const navigate = useNavigate();
+
+  if (loading) return <p>Loading dishes...</p>;
+  if (error) return <p>Error loading dishes: {error.message}</p>;
+
+  const handleAction = (redirectPath, dishId, type) => {
+    if (isAuthenticated === false) {
+      setActivePopover({ dishId, type });
+    } else if (isAuthenticated === true) {
+      navigate(redirectPath);
+    }
+  };
+
+  const popoverContent = (
+    <div>
+      <p>You need to be logged in to proceed.</p>
+      <Button type="primary" onClick={() => navigate("/login")}>
+        Login
+      </Button>
+    </div>
+  );
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -29,86 +56,112 @@ if (error) return <p>Error loading dishes: {error.message}</p>;
         </div>
       </section>
 
-      {/* Featured Dishes */}
       <section className="py-16 px-6 bg-yellow-100">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-10">
           Chef’s Specials
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {dishes.map((dish) => (
-            <Link
-              to={`/dish/${dish.dish_code}/${dish._id}`}
+            <div
               key={dish._id}
               className="bg-gray-50 px-2 py-6 rounded-lg shadow hover:shadow-md transition flex flex-col"
             >
-              <img
-                src={
-                  dish.image_url
-                    ? `${
-                        import.meta.env.VITE_BACKEND_URL
-                      }/${dish.image_url.replace(/\\/g, "/")}`
-                    : "https://via.placeholder.com/400x300?text=No+Image"
-                }
-                alt={dish.name}
-                className="w-full h-48 object-cover rounded-md mb-4"
-              />
+              <Link
+                to={`/dish/${dish.dish_code}/${dish._id}`}
+                className="flex flex-col flex-grow"
+              >
+                <img
+                  src={
+                    dish.image_url
+                      ? `${
+                          import.meta.env.VITE_BACKEND_URL
+                        }/${dish.image_url.replace(/\\/g, "/")}`
+                      : "https://via.placeholder.com/400x300?text=No+Image"
+                  }
+                  alt={dish.name}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
 
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xl font-semibold text-yellow-600">
-                  {dish.name}
-                </h3>
-                <h3 className="font-semibold text-yellow-600">
-                  {dish.disc_per ? (
-                    <>
-                      <span className="text-gray-500 line-through mr-2">
-                        Rs {dish.price}
-                      </span>
-                      <span>
-                        Rs{" "}
-                        {Math.round(
-                          dish.price - (dish.price * dish.disc_per) / 100
-                        )}
-                      </span>
-                    </>
-                  ) : (
-                    <>Rs {dish.price}</>
-                  )}
-                </h3>
-              </div>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-xl font-semibold text-yellow-600">
+                    {dish.name}
+                  </h3>
+                  <h3 className="font-semibold text-yellow-600">
+                    {dish.disc_per ? (
+                      <>
+                        <span className="text-gray-500 line-through mr-2">
+                          Rs {dish.price}
+                        </span>
+                        <span>
+                          Rs{" "}
+                          {Math.round(
+                            dish.price - (dish.price * dish.disc_per) / 100
+                          )}
+                        </span>
+                      </>
+                    ) : (
+                      <>Rs {dish.price}</>
+                    )}
+                  </h3>
+                </div>
 
-              <div className="flex justify-between mb-2">
-                {dish.day_special && (
-                  <p className="text-sm font-medium text-indigo-600">
-                    🌟 {dish.day_special} Special
-                  </p>
-                )}
-                {dish.disc_per > 0 && (
-                  <span className="text-sm font-semibold text-red-500 ml-2">
-                    (-{dish.disc_per}% off)
-                  </span>
-                )}
-              </div>
+                <p className="text-gray-600 text-sm mb-2">
+                  Food Type: {dish.food_type}
+                </p>
+                <p className="text-gray-600 text-sm flex-grow">
+                  {dish.description}
+                </p>
+              </Link>
 
-              <p className="text-gray-600 text-sm mb-2">
-                Food Type: {dish.food_type}
-              </p>
-              <p className="text-gray-600 text-sm flex-grow">
-                {dish.description}
-              </p>
               <div className="flex gap-4 mt-2">
-                <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
-                  Add to Cart
-                </button>
-                <Link to={`/checkout/${dish._id}`} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm">
-                  Buy Now
-                </Link>
+                <Popover
+                  content={popoverContent}
+                  title="Login Required"
+                  trigger="click"
+                  open={
+                    activePopover.dishId === dish._id &&
+                    activePopover.type === "cart"
+                  }
+                  onOpenChange={(visible) => {
+                    if (!visible)
+                      setActivePopover({ dishId: null, type: null });
+                  }}
+                >
+                  <button
+                    onClick={() => handleAction("/cart", dish._id, "cart")}
+                    className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+                  >
+                    Add to Cart
+                  </button>
+                </Popover>
+
+                <Popover
+                  content={popoverContent}
+                  title="Login Required"
+                  trigger="click"
+                  open={
+                    activePopover.dishId === dish._id &&
+                    activePopover.type === "buyNow"
+                  }
+                  onOpenChange={(visible) => {
+                    if (!visible)
+                      setActivePopover({ dishId: null, type: null });
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      handleAction("/checkout", dish._id, "buyNow")
+                    }
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
+                  >
+                    Buy Now
+                  </button>
+                </Popover>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </section>
-
-      {/* About Us */}
       <section className="py-16 px-6 bg-gray-100">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Story</h2>
@@ -122,7 +175,6 @@ if (error) return <p>Error loading dishes: {error.message}</p>;
         </div>
       </section>
 
-      {/* CTA Banner */}
       <section className="bg-yellow-500 text-white py-12 px-6 text-center">
         <h2 className="text-3xl font-bold mb-4">
           Ready to Experience Gourmet?

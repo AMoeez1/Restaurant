@@ -10,25 +10,11 @@ export default function Dashboard() {
   const isAuthenticated = useCheckAdmin();
 
   const [allUsers, setAllUsers] = useState([]);
-
   const [orders, setOrders] = useState([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
-    const fetchTable = async () => {
-     try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/admin/tables`,
-          {
-            withCredentials: true,
-          }
-        );
-        console.log(res.data);
-     } catch (err) {
-
-     } 
-    }
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
@@ -37,8 +23,9 @@ export default function Dashboard() {
             withCredentials: true,
           }
         );
-        // setOrders(res.data.orders);
         setCount(res.data.count);
+        const tablesAvailable = tables.filter(() => table.isAvailable).length;
+        setAvailable(tablesAvailable);
       } catch (err) {
         console.error("Failed to fetch orders", err);
       } finally {
@@ -47,7 +34,6 @@ export default function Dashboard() {
     };
 
     fetchOrders();
-    fetchTable();
   }, []);
 
   useEffect(() => {
@@ -77,11 +63,6 @@ export default function Dashboard() {
       </div>
       <div className="bg-white p-6 shadow rounded h-64">
         Recent Orders (Table Placeholder)
-        {/* {allUsers.map((user) => (
-          <p key={user._id}>
-            {user.name} - {user.email}
-          </p>
-        ))} */}
       </div>
     </div>
   );

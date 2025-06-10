@@ -8,6 +8,7 @@ import {
   CalendarOutlined,
   SettingOutlined,
   CoffeeOutlined,
+  TableOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 
@@ -46,6 +47,11 @@ export default function Sidebar() {
           label: <Link to="/admin/orders">View Orders</Link>,
         },
       ],
+    },
+       {
+      key: "tables",
+      icon: <TableOutlined />,
+      label: <Link to="/admin/tables">Tables</Link>,
     },
     {
       key: "reservations",

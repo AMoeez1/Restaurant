@@ -17,6 +17,7 @@ import DishDetailPage from "./pages/DishDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Orders from "./admin/pages/Orders";
+import Tables from "./admin/pages/Tables";
 
 export default function Router() {
   return (
@@ -38,6 +39,7 @@ export default function Router() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dishes" element={<Dishes />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="tables" element={<Tables />} />
           <Route path="dish/:dish_code/:dish_id" element={<DishDetail />} />
           <Route path="add-dish" element={<AddDish />} />
           <Route path="edit-dish/:dish_code/:dish_id" element={<EditDish />} />

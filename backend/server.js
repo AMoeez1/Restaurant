@@ -25,6 +25,7 @@ app.use("/", require("./routes/auth"));
 app.use("/", require('./routes/home'));
 app.use("/", require('./routes/cart'));
 app.use("/", require('./routes/order'));
+app.use("/", require('./routes/reservation'));
 app.use("/admin", require('./routes/admin/auth-admin'));
 app.use("/admin", require('./routes/admin/dashboard'));
 app.use("/admin", require('./routes/admin/dish'));

@@ -3,91 +3,41 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useGetDishes from "../hooks/useGetDishes";
 import useCheckAuth from "../hooks/useCheckAuth";
-import {
-  Popover,
-  Modal,
-  DatePicker,
-  TimePicker,
-  InputNumber,
-  Form,
-  Button,
-  Select,
-} from "antd";
+import { Popover, Button } from "antd";
 import useGetTables from "../hooks/useGetTables";
 import useGetUserDetail from "../hooks/useGetUserDetail";
 import { toast } from "react-toastify";
+import ReserveTableModal from "../components/ReserveTableModal";
 
 const Home = () => {
   const { dishes, loading, error } = useGetDishes();
-  const { tables, available } = useGetTables();
-  const { user } = useGetUserDetail();
   const isAuthenticated = useCheckAuth();
+  const { tables, available } = useGetTables();
   const [activePopover, setActivePopover] = useState({
     dishId: null,
     type: null,
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
-  const selectedDate = Form.useWatch("date", form);
+  const { user } = useGetUserDetail();
   const navigate = useNavigate();
 
   if (loading) return <p>Loading dishes...</p>;
   if (error) return <p>Error loading dishes: {error.message}</p>;
 
-  const handleAction = (redirectPath, dishId, type) => {
+  const handleAction = async (dish_code, dishId, type) => {
     if (isAuthenticated === false) {
       setActivePopover({ dishId, type });
     } else if (isAuthenticated === true) {
-      navigate(redirectPath);
-    }
-  };
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    try {
-      const values = await form.validateFields();
-      console.log("Form values:", values);
-
-      const userId = user?._id;
-      if (!userId) {
-        console.error("User is not authenticated.");
-        return;
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/add-cart/`,
+          {userId: user._id,dishId,dish_code,quantity: 1,},
+          { withCredentials: true }
+        );
+        toast.success("Added to card successfully");
+      } catch (err) {
+        console.error(err);
       }
-
-      const payload = {
-        userId,
-        tableId: values.tableId,
-        date: values.date.format("YYYY-MM-DD"),
-        from: values.time.format("HH:mm"),
-        till: values.time.clone().add(1, "hour").format("HH:mm"),
-      };
-
-      console.log("Sending reservation payload:", payload);
-
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/get-reservation`,
-        payload,
-        { withCredentials: true }
-      );
-
-      console.log("Reservation successful:", res.data);
-      toast.success('Table Reserved Successfully');
-      setIsModalOpen(false);
-      form.resetFields();
-    } catch (errorInfo) {
-      console.error(
-        "Reservation error:",
-        errorInfo?.response?.data || errorInfo
-      );
     }
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    form.resetFields();
   };
 
   const popoverContent = (
@@ -114,67 +64,7 @@ const Home = () => {
           <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md text-lg">
             Explore Menu
           </button>
-          <button
-            className="bg-white border border-yellow-500 hover:bg-yellow-100 text-yellow-600 px-6 py-3 rounded-md text-lg"
-            onClick={showModal}
-          >
-            Book a Table
-          </button>
-
-          <Modal
-            title="Reserve a Table"
-            open={isModalOpen}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            okText="Reserve"
-            cancelText="Cancel"
-          >
-            <Form layout="vertical" form={form}>
-              <Form.Item
-                name="date"
-                label="Reservation Date"
-                rules={[{ required: true, message: "Please select a date" }]}
-              >
-                <DatePicker className="w-full" />
-              </Form.Item>
-
-              <Form.Item
-                name="time"
-                label="Time"
-                rules={[{ required: true, message: "Please choose a time" }]}
-              >
-                <TimePicker className="w-full" format="HH:mm" />
-              </Form.Item>
-
-              <Form.Item
-                name="tableId"
-                label="Select Table"
-                rules={[{ required: true, message: "Please select a table" }]}
-              >
-                <Select
-                  placeholder="Select a table"
-                  options={tables.map((table) => ({
-                    label: `Table ${table.tableNumber} - Seats: ${table.seats.length}`,
-                    value: table._id,
-                  }))}
-                  showSearch
-                  optionFilterProp="label"
-                  className="w-full"
-                  disabled={!selectedDate}
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="guests"
-                label="Number of Guests"
-                rules={[
-                  { required: true, message: "Please enter number of guests" },
-                ]}
-              >
-                <InputNumber className="w-full" min={1} max={20} />
-              </Form.Item>
-            </Form>
-          </Modal>
+          <ReserveTableModal user={user} tables={tables} />
         </div>
       </section>
 
@@ -250,7 +140,7 @@ const Home = () => {
                   }}
                 >
                   <button
-                    onClick={() => handleAction("/cart", dish._id, "cart")}
+                    onClick={() => handleAction( dish.dish_code,dish._id, "cart")}
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
                   >
                     Add to Cart

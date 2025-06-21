@@ -4,6 +4,7 @@ import useGetUserDetail from "../hooks/useGetUserDetail";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Checkbox } from "antd";
 
 const Cart = () => {
   const isAuthenticated = useCheckAuth();
@@ -11,6 +12,7 @@ const Cart = () => {
 
   const [cart, setCart] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -154,6 +156,7 @@ const Cart = () => {
                     className="flex items-center justify-between bg-white rounded-xl shadow p-4"
                   >
                     <div className="flex items-center gap-5 w-full">
+                    <Checkbox/>
                       <img
                         src={imageUrl}
                         alt={dish.name}

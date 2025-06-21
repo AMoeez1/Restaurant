@@ -24,8 +24,6 @@ export default function Dashboard() {
           }
         );
         setCount(res.data.count);
-        const tablesAvailable = tables.filter(() => table.isAvailable).length;
-        setAvailable(tablesAvailable);
       } catch (err) {
         console.error("Failed to fetch orders", err);
       } finally {

@@ -10,7 +10,9 @@ router.post("/get-reservation", async (req, res) => {
     const { userId, tableId, date, from, till } = req.body;
 
     if (!userId || !tableId || !date || !from || !till) {
-      return res.status(400).json({ message: "Incomplete reservation details." });
+      return res
+        .status(400)
+        .json({ message: "Incomplete reservation details." });
     }
 
     const user = await User.findById(userId);
@@ -24,19 +26,21 @@ router.post("/get-reservation", async (req, res) => {
     const tillTime = new Date(`${date}T${till}`);
 
     if (fromTime >= tillTime) {
-      return res.status(400).json({ message: "'from' time must be before 'till' time." });
+      return res
+        .status(400)
+        .json({ message: "'from' time must be before 'till' time." });
     }
 
     const conflict = await Reservation.findOne({
       table: tableId,
       date: reservationDate,
-      $or: [
-        { from: { $lt: tillTime }, till: { $gt: fromTime } },
-      ],
+      $or: [{ from: { $lt: tillTime }, till: { $gt: fromTime } }],
     });
 
     if (conflict) {
-      return res.status(409).json({ message: "Table is already reserved for this time slot." });
+      return res
+        .status(409)
+        .json({ message: "Table is already reserved for this time slot." });
     }
 
     const newReservation = new Reservation({
@@ -49,10 +53,26 @@ router.post("/get-reservation", async (req, res) => {
 
     await newReservation.save();
 
-    return res.status(201).json({ message: "Reservation successful.", reservation: newReservation });
+    return res.status(201).json({
+      message: "Reservation successful.",
+      reservation: newReservation,
+    });
   } catch (error) {
     console.error("Reservation error:", error);
     return res.status(500).json({ message: "Server error." });
+  }
+});
+
+router.get("/get-table-reservations/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const reservations = await Reservation.find({ user: user_id })
+      .populate("table")
+      .populate("user");
+    res.status(200).json(reservations);
+  } catch (err) {
+    console.error("Error fetching reservations:", err);
+    res.status(500).json({ error: "Server Error" });
   }
 });
 

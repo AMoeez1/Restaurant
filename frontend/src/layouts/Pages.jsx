@@ -13,7 +13,6 @@ export default function pages() {
             withCredentials: true,
           }
         );
-        console.log(response.data.isAuthenticated);
 
         if (response.data.isAuthenticated === true) {
           setIsAuthenticated(true);

@@ -20,4 +20,13 @@ router.get("/orders", async (req, res) => {
   }
 });
 
+router.get('/reservations', async (req, res) => {
+  try {
+    const reservation = await Reservation.find().populate('user').populate('table');
+    res.status(200).json(reservation)
+  } catch (err) {
+    res.status(500).json(err)
+  }
+})
+
 module.exports = router;

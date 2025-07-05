@@ -2,9 +2,16 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Form, Input, Button, Spin } from "antd";
+import { Form, Input, Button, Spin, Radio } from "antd";
 import useGetUserDetail from "../hooks/useGetUserDetail";
 import StylishLoader from "../hooks/useLoader";
+import { MdOutlineAttachMoney, MdPayments } from "react-icons/md";
+import { AiOutlineCreditCard } from "react-icons/ai";
+import { RiBankLine, RiWallet3Line } from "react-icons/ri";
+import { FaGooglePay } from "react-icons/fa"; // Google Pay icon
+import { PaymentMethodModal } from "../components/PaymentMethodModal";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const Checkout = () => {
   const [form] = Form.useForm();
@@ -14,7 +21,23 @@ const Checkout = () => {
   const { selectedItems } = location.state || {};
 
   const { user, loading: userLoading, error: userError } = useGetUserDetail();
+  const [selectedPayment, setSelectedPayment] = useState("cod");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [modalForm] = Form.useForm();
 
+  const handleModalOk = () => {
+    modalForm.validateFields().then((values) => {
+      if (!termsAccepted) {
+        message.warning("Please accept terms & conditions.");
+        return;
+      }
+      console.log("Payment info:", values);
+      setModalVisible(false);
+      modalForm.resetFields();
+      setTermsAccepted(false);
+    });
+  };
   const handleSubmit = async (values) => {
     if (!user?._id) {
       toast.error("User not authenticated!");
@@ -70,6 +93,15 @@ const Checkout = () => {
     }
   };
 
+  useEffect(() => {
+  if (selectedPayment !== "cod") {
+    setModalVisible(true);
+    modalForm.resetFields();
+    setTermsAccepted(false);
+  }
+}, [selectedPayment]);
+
+
   // if (userLoading)
   //   return (
   //     <div style={{ display: "flex", justifyContent: "center", marginTop: 50, height: '80vh', alignItems: 'center' }}>
@@ -77,7 +109,7 @@ const Checkout = () => {
   //     </div>
   //   );
 
-    if (userLoading) return <StylishLoader />;
+  if (userLoading) return <StylishLoader />;
 
   if (userError) return <div className="p-6 text-red-500">{userError}</div>;
 
@@ -154,6 +186,70 @@ const Checkout = () => {
         >
           <Input placeholder="Postal Code" />
         </Form.Item>
+
+<Form.Item
+  label="Payment Method"
+  name="paymentMethod"
+  rules={[{ required: true, message: "Please select a payment method" }]}
+>
+  <Radio.Group
+    className="flex flex-wrap gap-4"
+    onChange={(e) => {
+      const value = e.target.value;
+      setSelectedPayment(value);
+      if (value !== "cod") {
+        setModalVisible(true);
+      } else {
+        setModalVisible(false);
+      }
+    }}
+  >
+    <Radio value="cod" className="!p-0">
+      <div className="flex items-center gap-2 p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer">
+        <MdOutlineAttachMoney className="text-xl text-green-600" />
+        <span className="font-medium">Cash on Delivery</span>
+      </div>
+    </Radio>
+
+    <Radio value="card" className="!p-0">
+      <div className="flex items-center gap-2 p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer">
+        <AiOutlineCreditCard className="text-xl text-blue-500" />
+        <span className="font-medium">Credit / Debit Card</span>
+      </div>
+    </Radio>
+
+    <Radio value="easypaisa" className="!p-0">
+      <div className="flex items-center gap-2 p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer">
+        <RiWallet3Line className="text-xl text-green-500" />
+        <span className="font-medium">Wallets</span>
+      </div>
+    </Radio>
+
+    <Radio value="gpay" className="!p-0">
+      <div className="flex items-center gap-2 p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer">
+        <FaGooglePay className="text-xl text-indigo-600" />
+        <span className="font-medium">Google Pay</span>
+      </div>
+    </Radio>
+
+    <Radio value="netbanking" className="!p-0">
+      <div className="flex items-center gap-2 p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer">
+        <RiBankLine className="text-xl text-yellow-600" />
+        <span className="font-medium">Bank Transfer</span>
+      </div>
+    </Radio>
+  </Radio.Group>
+</Form.Item>
+
+           <PaymentMethodModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        selectedPayment={selectedPayment}
+        handleModalOk={handleModalOk}
+        modalForm={modalForm}
+        termsAccepted={termsAccepted}
+        setTermsAccepted={setTermsAccepted}
+      />
 
         <Form.Item>
           <Button

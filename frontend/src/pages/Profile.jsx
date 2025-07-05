@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { Skeleton } from "antd";
+import { Skeleton, Spin } from "antd";
 import useCheckAuth from "../hooks/useCheckAuth";
 import useGetUserDetail from "../hooks/useGetUserDetail";
 import EditProfileModal from "../components/auth/EditProfileModal";
 import ProfileTabs from "../components/Profile/ProfileTabs";
+import StylishLoader from "../hooks/useLoader";
+import { GiCookingPot, GiForkKnifeSpoon } from "react-icons/gi";
+
 
 function Profile() {
   const navigate = useNavigate();
@@ -22,24 +25,7 @@ function Profile() {
     }
   }, [isAuthenticated, navigate]);
 
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md text-center">
-        <Skeleton.Avatar
-          active
-          size={120}
-          style={{ margin: "0 auto", marginBottom: 16 }}
-        />
-        <Skeleton active title={false} paragraph={{ rows: 1, width: "60%" }} />
-        <Skeleton.Input active style={{ width: 200, marginBottom: 20 }} />
-
-        <div className="mt-8 flex justify-center gap-4">
-          <Skeleton.Button active style={{ width: 120 }} />
-          <Skeleton.Button active style={{ width: 120 }} />
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <StylishLoader />;
 
   if (error) return <p>Error: {error}</p>;
 

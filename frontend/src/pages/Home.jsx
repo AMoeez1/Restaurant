@@ -8,6 +8,8 @@ import useGetTables from "../hooks/useGetTables";
 import useGetUserDetail from "../hooks/useGetUserDetail";
 import { toast } from "react-toastify";
 import ReserveTableModal from "../components/ReserveTableModal";
+import { Spin } from "antd";
+import StylishLoader from "../hooks/useLoader";
 
 const Home = () => {
   const { dishes, loading, error } = useGetDishes();
@@ -20,13 +22,21 @@ const Home = () => {
   const { user } = useGetUserDetail();
   const navigate = useNavigate();
 
-  if (loading) return <p>Loading dishes...</p>;
+// if (loading)
+//   return (
+//     <div style={{ display: "flex", justifyContent: "center", marginTop: 50, height: '80vh', alignItems: 'center' }}>
+//       <Spin size="large" tip="Loading dishes..." />
+//     </div>
+//   );
+
+  if (loading) return <StylishLoader />;
+
+
   if (error) return <p>Error loading dishes: {error.message}</p>;
 
   const handleBuyNow = (dish) => {
-    // Create a "selected item" shaped like a cart item, with quantity 1
     const singleItem = {
-      _id: `buyNow-${dish._id}`, // unique id for this session-only item
+      _id: `buyNow-${dish._id}`,
       dishId: dish,
       quantity: 1,
     };

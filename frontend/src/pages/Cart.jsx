@@ -88,25 +88,45 @@ const Cart = () => {
   if (isAuthenticated === null || userLoading) return <div>Loading...</div>;
   if (userError) return <div>Error loading user details: {userError}</div>;
 
-  const { totalBeforeDiscount, totalAfterDiscount, totalSaved } = cart.reduce(
-    (totals, item) => {
-      const dish = item.dishId;
-      const quantity = item.quantity;
-      const basePrice = dish.price;
-      const discount = dish.disc_per || 0;
+const { totalBeforeDiscount, totalAfterDiscount, totalSaved } = cart.reduce(
+  (totals, item) => {
+    if (!selectedItems.includes(item._id)) return totals; // Only count selected
+    const dish = item.dishId;
+    const quantity = item.quantity;
+    const basePrice = dish.price;
+    const discount = dish.disc_per || 0;
 
-      const totalPrice = basePrice * quantity;
-      const discountedPrice =
-        (basePrice - (basePrice * discount) / 100) * quantity;
+    const totalPrice = basePrice * quantity;
+    const discountedPrice =
+      (basePrice - (basePrice * discount) / 100) * quantity;
 
-      totals.totalBeforeDiscount += totalPrice;
-      totals.totalAfterDiscount += discountedPrice;
-      totals.totalSaved += totalPrice - discountedPrice;
+    totals.totalBeforeDiscount += totalPrice;
+    totals.totalAfterDiscount += discountedPrice;
+    totals.totalSaved += totalPrice - discountedPrice;
 
-      return totals;
-    },
-    { totalBeforeDiscount: 0, totalAfterDiscount: 0, totalSaved: 0 }
+    return totals;
+  },
+  { totalBeforeDiscount: 0, totalAfterDiscount: 0, totalSaved: 0 }
+);
+
+const selectedCartItems = cart.filter((item) =>
+  selectedItems.includes(item._id)
+);
+
+const handleProceedToCheckout = () => {
+  const selectedCartItems = cart.filter((item) =>
+    selectedItems.includes(item._id)
   );
+
+  if (selectedCartItems.length === 0) {
+    toast.warning("Please select at least one dish to proceed.");
+    return;
+  }
+
+  navigate("/checkout", { state: { selectedItems: selectedCartItems } });
+};
+
+
 
   return (
     <main className="min-h-screen grid grid-cols-12 bg-yellow-50 py-10">
@@ -138,6 +158,24 @@ const Cart = () => {
               Your Cart
             </h1>
             <ul className="space-y-4">
+              <div className="mb-4">
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedItems(cart.map((item) => item._id));
+                    } else {
+                      setSelectedItems([]);
+                    }
+                  }}
+                  checked={selectedItems.length === cart.length && cart.length > 0}
+                  indeterminate={
+                    selectedItems.length > 0 && selectedItems.length < cart.length
+                  }
+                >
+                  Select All
+                </Checkbox>
+              </div>
+
               {cart.map((item) => {
                 const dish = item.dishId;
                 const discountedPrice = dish.disc_per
@@ -156,7 +194,15 @@ const Cart = () => {
                     className="flex items-center justify-between bg-white rounded-xl shadow p-4"
                   >
                     <div className="flex items-center gap-5 w-full">
-                    <Checkbox/>
+                    <Checkbox
+                        checked={selectedItems.includes(item._id)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setSelectedItems((prev) =>
+                            checked ? [...prev, item._id] : prev.filter((id) => id !== item._id)
+                          );
+                        }}
+                      />
                       <img
                         src={imageUrl}
                         alt={dish.name}
@@ -257,9 +303,17 @@ const Cart = () => {
                 Rs {totalAfterDiscount.toFixed(0)}
               </span>
             </p>
-            <button className="mt-3 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md shadow">
+<button
+  className="mt-3 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md shadow"
+  onClick={handleProceedToCheckout}
+>
+  Proceed to Checkout
+</button>
+
+
+            {/* <button className="mt-3 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md shadow">
               Proceed to Checkout
-            </button>
+            </button> */}
           </div>
         )}
       </div>

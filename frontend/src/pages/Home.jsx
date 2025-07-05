@@ -23,6 +23,17 @@ const Home = () => {
   if (loading) return <p>Loading dishes...</p>;
   if (error) return <p>Error loading dishes: {error.message}</p>;
 
+  const handleBuyNow = (dish) => {
+    // Create a "selected item" shaped like a cart item, with quantity 1
+    const singleItem = {
+      _id: `buyNow-${dish._id}`, // unique id for this session-only item
+      dishId: dish,
+      quantity: 1,
+    };
+
+    navigate("/checkout", { state: { selectedItems: [singleItem] } });
+  };
+
   const handleAction = async (dish_code, dishId, type) => {
     if (isAuthenticated === false) {
       setActivePopover({ dishId, type });
@@ -30,7 +41,7 @@ const Home = () => {
       try {
         const res = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/add-cart/`,
-          {userId: user._id,dishId,dish_code,quantity: 1,},
+          { userId: user._id, dishId, dish_code, quantity: 1 },
           { withCredentials: true }
         );
         toast.success("Added to card successfully");
@@ -140,7 +151,9 @@ const Home = () => {
                   }}
                 >
                   <button
-                    onClick={() => handleAction( dish.dish_code,dish._id, "cart")}
+                    onClick={() =>
+                      handleAction(dish.dish_code, dish._id, "cart")
+                    }
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
                   >
                     Add to Cart
@@ -161,9 +174,7 @@ const Home = () => {
                   }}
                 >
                   <button
-                    onClick={() =>
-                      handleAction("/checkout", dish._id, "buyNow")
-                    }
+                    onClick={() => handleBuyNow(dish)}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg text-sm"
                   >
                     Buy Now
